@@ -3,7 +3,8 @@ import cors from "cors";
 import connectDb from "./config/dbConnection.js";
 import adminRoute from "./routes/adminRoute.js";
 import userRoute from "./routes/userRoute.js";
-import produtRoute from "./routes/productRoute.js";
+// import produtRoute from "./routes/productRoute.js";
+import productRouter from "./routes/productRoute.js";
 import dotenv from "dotenv";
 
 
@@ -16,7 +17,7 @@ app.use(express.static(process.env.FILE_UPLOADING_PATH));
 
 
 app.use("/api/admin", adminRoute);
-app.use("/api/products", adminRoute);
+app.use("/api/products", productRouter);
 app.use("/api/cart", adminRoute);
 app.use("/api/user", adminRoute);
 app.use("/api/orders", adminRoute);
