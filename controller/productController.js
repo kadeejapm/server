@@ -96,11 +96,11 @@ export const updateProductById = async (req, res) => {
             return res.status(400).json({ message: "error while deleting!" });
         }
     
-        await Product.findOneAndUpdate(req.params.id,{$set:req.body})
+        await Product.findByIdAndUpdate(req.params.id,{$set:req.body})
             return res.status(200).json({ message: "updated" });
         
     } catch (error) {
-        return res.status(200).json({ message: error.message || "updated" });
+        return res.status(400).json({ message: error.message || "updated" });
         
     }
    
