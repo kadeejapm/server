@@ -1,67 +1,70 @@
 import mongoose from "mongoose";
 import { Product } from "../model/Product.js";
 
-
-export const createProduct =async (req, res) => {
-
+import { Order } from "../model/Orders.js";
 
 
+export const createOrder =async (req, res) => {
 
 
-
-
+    console.log(req.body)
+    // return true
 
     try {
-        const { profile, name, price, details } = req.body
+        const { fname, lname, userId, productId } = req.body
 
-        if(!profile){
-
-            return res.status(400).json({message:"profile is missing" })
-        }
         
-        if (!name) {
-            return res.status(400).json({ message: "name is missing" })
+        if(!fname) {
+            return res.status(400).json({ message: "fname is missing" })
         }
-        if (!price) {
-            return res.status(400).json({ message: "price is missing" })
+        if (!lname) {
+            return res.status(400).json({ message: "lname is missing" })
         }
-        if (!details) {
-            return res.status(400).json({ message: "details is missing" })
+        if (!productId) {
+            return res.status(400).json({ message: "productId is missing" })
+        }
+        if (!userId) {
+            return res.status(400).json({ message: "userId is missing" })
         }
 
-        const isProductExist = await Product.findOne({name:name})
-
-
-      
-        if(!!isProductExist){
-            return res.status(400).json({ message: "product name is exising , please enter another one" })
-        }
-        
-
-        const newProduct = new Product({
-            name:name,
-            details:details,
-            price:price
-        
+        const newOrder = new Order({
+            fname,
+            lname,
+            productId,
+            userId
         })
+
+        const orderSaved = await newOrder.save() 
         
-        
-        const createdProduct = await newProduct.save();
-        return res.status(201).json({data:createdProduct,message: 'successfully inserted product into db' });
+        return res.status(201).json({data:orderSaved,message: 'successfully ordered' });
 
     } catch (error) {
         return res.status(404).json({message: error.message || 'error' });      
     }
 }
 
-export const getProducts = async (req, res) => {
-    const Products= await Product.find()
+export const getOrders = async (req, res) => {
+    const orders= await Order.aggregate([
+        {
+            $lookup:{
+                from:"products",
+                localField:"productId",
+
+                foreignField:"_id",
+                as:"products"
+            }
+        }
+    ])
+    const count= await Order.countDocuments();
 
 
-    if (Products.length === 0) {
-        return res.status(404).json("no entries yet");
+
+
+
+    if (orders.length === 0) {
+        return res.status(200).json({products:orders});
     } else {
-        return res.status(200).json({ products: Products });
+        return res.status(200).json({ products: orders,count:count });
     }
 }
 
@@ -80,12 +83,13 @@ export const getProductById = async (req, res) => {
 export const deleteProductById = async (req, res) => {
 
     try {
-        
+        // console.log(req.params.id)
+        // return true
         if(!req.params.id){
             return res.status(400).json({ message: "error while deleting!" });
         }
     
-        await Product.findOneAndDelete(req.params.id)
+        await Product.findByIdAndDelete(req.params.id)
             return res.status(200).json({ message: "deleted" });
         
     } catch (error) {
@@ -117,4 +121,3 @@ export const updateProductById = async (req, res) => {
     }
    
 }
-

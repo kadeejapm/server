@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import { User } from "../model/userModel.js";
-import Jwt  from "jsonwebtoken";
+import jwt  from "jsonwebtoken";
 import dotenv from "dotenv";
 
 
@@ -61,6 +61,7 @@ export const login = async (req, res) => {
         if (result) {
 
             const token = jwt.sign({userId: getUser._id,isUser:getUser.isUser},process.env.JWT_SECRET_KEY, {expiresIn:"10h"})
+            console.log("token: ",token);
 
 
             return res.status(200).json({ users: getUser, message: 'Successfull' ,token})
@@ -84,6 +85,27 @@ export const getUser = async (req, res) => {
         }
 
         return res.status(200).json({ users: getUser, message: 'invalid email' })
+    } catch (error) {
+        return res.status(400).json({ message: error.message || 'error' })
+
+    }
+
+}
+
+export const getUsers = async (req, res) => {
+
+    try {
+
+        const getUsers = await User.find()
+        console.log(getUsers)
+
+        if (getUsers.length === 0) {
+            return res.status(400).json({ message: "user is not found!" })
+        }else{
+
+            return res.status(200).json({ users: getUsers })
+        }
+
     } catch (error) {
         return res.status(400).json({ message: error.message || 'error' })
 

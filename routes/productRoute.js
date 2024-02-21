@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import multer from "multer";
+import multer from "multer"
 import {
     createProduct,
     deleteProductById,
@@ -7,9 +7,11 @@ import {
     getProducts,
     updateProductById
 } from "../controller/productController.js";
+import mongoose from "mongoose";
 
 
 const router = Router();
+
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -23,6 +25,15 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage })
 
+router.post('/',upload.single("profile"),(req,res)=>{
+   
+    console.log(req.file,"image uploaded")
+    // return true;
+    mongoose.connection.collection("products").insertOne({...req.body,profile:req.file?.filename})
+    res.json({message:"uploaded"});
+});
+
+// router.post('/', upload.single('profile'),createProduct)
 router.post('/',createProduct)
 router.get('/',getProducts)
 router.get('/:id', getProductById)
@@ -31,4 +42,3 @@ router.delete("/:id",deleteProductById)
 
 
 export default router;
-
